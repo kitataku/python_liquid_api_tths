@@ -5,7 +5,7 @@ import pandas as pd
 
 pd.set_option("display.max_columns", None)
 #a = public_api.LiquidPublic()
-pri = private_api.LiquidPrivate(token_id=os.environ["id"], secret_key=os.environ["key"])
+pri = private_api.LiquidPrivate(token_id="xxxxxx", secret_key="xxxxxxxxxxxx")
 #r = pri.create_order(currency_name="qash", side="buy", amount=1.0, price=7.00)
 #r = pri.cancel_order("xxxxxxx)
 r = pri.get_order_info(limit_num=50)
