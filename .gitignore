@@ -130,3 +130,4 @@ dmypy.json
 
 # addition
 .idea/
+./python_liquid_api/test_note.py

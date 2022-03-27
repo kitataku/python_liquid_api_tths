@@ -9,7 +9,6 @@ from parameter_dict import ParameterDict
 class LiquidPrivate:
     def __init__(self, token_id, secret_key):
         """
-
         :param token_id:
         :param secret_key:
         """
@@ -166,3 +165,42 @@ class LiquidPrivate:
             print("対象の取引IDが存在しません。取引ID:", order_id)
         elif res.status_code == 200:
             print("注文がキャンセルされました。取引ID:", order_id)
+
+    def get_fiat_info(self):
+        """
+        日本円残高取得
+        :return:
+        - balanced: 利用可能残高
+        - reserved: ロック中残高
+        """
+        url = self.endpoint + "fiat_accounts"
+        # ヘッダ情報作成
+        url, header = self.make_header(path=url)
+        # データ送信
+        res = requests.get(url=url, headers=header)
+        parsed = json.loads(res.text)[0]
+
+        balance = parsed["balance"]  # 日本円残高
+        reserved = parsed["reserved_balance"]  # ロック中
+        return balance, reserved
+
+    def get_crypto_info(self, currency="BTC"):
+        url = self.endpoint + "crypto_accounts"
+        # ヘッダ情報作成
+        url, header = self.make_header(path=url)
+        # データ送信
+        res = requests.get(url=url, headers=header)
+        parsed = json.loads(res.text)
+
+        currency = currency.upper()
+        data = None
+        # 引数で与えた通貨の情報を取得
+        for p in parsed:
+            if p["currency"] == currency:
+                data = p
+                break
+
+        balance = data["balance"]  # 利用可能残高
+        reserved = data["reserved_balance"]  # ロック中残高
+
+        return balance, reserved
