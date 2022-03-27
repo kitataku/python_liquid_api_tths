@@ -54,7 +54,7 @@ class LiquidPrivate:
 
         return currency_id, amount, price
 
-    def create_order(self, currency_name, side, amount, price):
+    def create_order(self, currency_name, side, amount, price=0.0, order_type="limit"):
         """
         注文
         :param currency_name: 通貨名
@@ -63,6 +63,9 @@ class LiquidPrivate:
         - buy: 買い注文
         :param amount: 注文量
         :param price: 注文単価
+        :param order_type: 注文タイプ
+        - limit: 指値注文
+        - market: 成行注文
         :return:
         """
         url = self.endpoint + "orders/"
@@ -79,7 +82,7 @@ class LiquidPrivate:
         # 注文データ
         send_data = {
             "order": {
-                "order_type": "limit",
+                "order_type": order_type,
                 "product_id": currency_id,
                 "side": side,
                 "quantity": amount,
