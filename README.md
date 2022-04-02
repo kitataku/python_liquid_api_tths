@@ -1,15 +1,13 @@
 # python_liquid_api
-
 ## API概要
-
 このライブラリはLiquid APIのPrivate APIとPublic APIをPythonで扱うものです。
 
 ## ダウンロード
-
+```shell
 pip install python-liquid-api-tths
+```
 
 ## Public API
-
 Public APIを使うにはLiquidPublicをインスタンス化します。
 
 ```python
@@ -19,11 +17,9 @@ pub = LiquidPublic()
 ```
 
 ### get_candlestick
-
 このメソッドを使用することでOHLCVデータを取得することができます。
 
 #### 引数
-
 - currency_name: 取得対象の通貨名を指定します。指定できる値は次の通りです。
   - btc
   - eth
