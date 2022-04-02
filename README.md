@@ -4,6 +4,10 @@
 
 このライブラリはLiquid APIのPrivate APIとPublic APIをPythonで扱うものです。
 
+## ダウンロード
+
+pip install python-liquid-api-tths
+
 ## Public API
 
 Public APIを使うにはLiquidPublicをインスタンス化します。
