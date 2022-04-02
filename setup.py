@@ -5,8 +5,6 @@ import python_liquid_api
 NAME = "python_liquid_api_tths"
 AUTHOR = "kitataku"
 EMAIL = ""
-MAINTAINER = "kitataku"
-MAIN_EMAIL = ""
 DESCRIPTION = "Use Liquid API with Python"
 LICENSE = "MIT License"
 URL = "https://github.com/kitataku/python_liquid_api_tths"
@@ -27,3 +25,19 @@ with open("README.md", "r") as f:
     readme = f.read()
 
 long_description = readme
+
+setup(
+    name=NAME,
+    author=AUTHOR,
+    author_email=EMAIL,
+    maintainer=AUTHOR,
+    maintainer_email=EMAIL,
+    description=DESCRIPTION,
+    long_description=long_description,
+    licence=LICENSE,
+    url=URL,
+    version=VERSION,
+    python_requires=PYTHON_REQUIRES,
+    install_requires=INSTALL_REQUIRES,
+    packages=PACKAGES
+)
