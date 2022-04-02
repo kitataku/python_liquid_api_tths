@@ -1,9 +1,9 @@
 import jwt
 import json
 import requests
-
 from datetime import datetime
-from parameter_dict import ParameterDict
+
+from .parameter_dict import ParameterDict
 
 
 class LiquidPrivate:

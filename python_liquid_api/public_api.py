@@ -1,4 +1,4 @@
-from parameter_dict import ParameterDict
+from .parameter_dict import ParameterDict
 import requests
 import json
 import datetime
