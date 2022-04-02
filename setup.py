@@ -6,6 +6,7 @@ NAME = "python_liquid_api_tths"
 AUTHOR = "kitataku"
 EMAIL = ""
 DESCRIPTION = "Use Liquid API with Python"
+CONTENT_TYPE = "text/markdown"
 LICENSE = "MIT License"
 URL = "https://github.com/kitataku/python_liquid_api_tths"
 VERSION = python_liquid_api.__version__
@@ -34,6 +35,7 @@ setup(
     maintainer_email=EMAIL,
     description=DESCRIPTION,
     long_description=long_description,
+    long_description_content_type=CONTENT_TYPE,
     licence=LICENSE,
     url=URL,
     version=VERSION,
