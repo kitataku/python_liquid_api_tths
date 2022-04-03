@@ -187,7 +187,7 @@ class LiquidPrivate:
         reserved = parsed["reserved_balance"]  # ロック中
         return balance, reserved
 
-    def get_crypto_info(self, currency="BTC"):
+    def get_crypto_info(self, currency="btc"):
         url = self.endpoint + "crypto_accounts"
         # ヘッダ情報作成
         url, header = self.make_header(path=url)
