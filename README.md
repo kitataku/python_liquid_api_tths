@@ -2,6 +2,9 @@
 ## API概要
 このライブラリはLiquid APIのPrivate APIとPublic APIをPythonで扱うものです。
 
+PyPI
+https://pypi.org/project/python-liquid-api-tths/
+
 ## ダウンロード
 ```shell
 pip install python-liquid-api-tths
