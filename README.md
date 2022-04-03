@@ -5,7 +5,7 @@
 PyPI
 https://pypi.org/project/python-liquid-api-tths/
 
-## ダウンロード
+## インストール
 ```shell
 pip install python-liquid-api-tths
 ```
