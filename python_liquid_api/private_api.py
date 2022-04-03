@@ -47,7 +47,7 @@ class LiquidPrivate:
 
         if side is not None:
             if side not in self.parameter_dict.side_list:
-                raise ValueError("注文にはbuyもしくはsellをしてください。")
+                raise ValueError("注文にはbuyもしくはsellを指定してください。")
 
         amount = float(amount)
         price = float(price)

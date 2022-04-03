@@ -133,7 +133,7 @@ order_info = pri.create_order(currency_name, side, amount, price=0.0, order_type
 
 #### 例外
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
-- **注文にはbuyもしくはsellをしてください。**: 引数のsideに指定できる値以外を指定した場合に発生します。
+- **注文にはbuyもしくはsellを指定してください。**: 引数のsideに指定できる値以外を指定した場合に発生します。
 
 ### cancel_order
 このメソッドをを使うことで注文をキャンセルすることができます。
