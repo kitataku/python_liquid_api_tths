@@ -82,7 +82,7 @@ ohlc = pub.get_order_book(currency_name)
 #### 例外
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 
-## Public API
+## Private API
 Private APIを使うにはLiquidPrivateをインスタンス化します。
 
 ```python
@@ -146,19 +146,49 @@ pri.cancel_order(order_id)
 #### 引数
 - order_id: キャンセル対象の取引IDを指定します。
 
-### get_fiat_info
-このメソッドを使うことで日本円の残高を取得することができます。
+### get_asset_info
+このメソッドを使うことで資産の残高を取得することができます。
 ```python
 from python_liquid_api.private_api import LiquidPrivate
 pri = LiquidPrivate(token_id, secret_key)
 pri.get_fiat_info()
 ```
+#### 例外
+- **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
+
+### get_fiat_info
+**! 廃止予定のメソッド**
+get_asset_infoを使ってください。
+
+このメソッドを使うことで日本円の残高を取得することができます。
+```python
+from python_liquid_api.private_api import LiquidPrivate
+pri = LiquidPrivate(token_id, secret_key)
+pri.get_fiat_info(asset)
+```
+#### 引数
+- **currency_name**: 取得対象の通貨名を指定します。指定できる値は次の通りです。
+  - btc: ビットコイン
+  - eth: イーサリアム
+  - xrp: リップル
+  - bch: ビットコインキャッシュ
+  - qash: キャッシュ
+  - ltc: ライトコイン
+  - bat: ベーシックアテンショントークン
+  - jpy: 日本円
+
+#### 返り値
+- **balance**: 利用可能残高
+- **reserved**: ロック中残高
 
 #### 返り値
 - **balance**: 利用可能残高です。
 - **reserved**: ロック中残高です。
 
 ### get_crypto_info
+**! 廃止予定のメソッド**
+get_asset_infoを使ってください。
+
 このメソッドを使うことで暗号資産の残高を取得することができます。
 ```python
 from python_liquid_api.private_api import LiquidPrivate

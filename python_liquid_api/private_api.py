@@ -2,6 +2,7 @@ import jwt
 import json
 import requests
 from datetime import datetime
+import warnings
 
 from .parameter_dict import ParameterDict
 
@@ -176,6 +177,7 @@ class LiquidPrivate:
         - balanced: 利用可能残高
         - reserved: ロック中残高
         """
+        warnings.warn("廃止予定のメソッドです。get_asset_info(asset='jpy')を使用してください。", category=FutureWarning)
         url = self.endpoint + "fiat_accounts"
         # ヘッダ情報作成
         url, header = self.make_header(path=url)
@@ -188,6 +190,7 @@ class LiquidPrivate:
         return balance, reserved
 
     def get_crypto_info(self, currency="btc"):
+        warnings.warn("廃止予定のメソッドです。get_asset_info(asset)を使用してください。", category=FutureWarning)
         url = self.endpoint + "crypto_accounts"
         # ヘッダ情報作成
         url, header = self.make_header(path=url)
@@ -200,6 +203,36 @@ class LiquidPrivate:
         # 引数で与えた通貨の情報を取得
         for p in parsed:
             if p["currency"] == currency:
+                data = p
+                break
+
+        balance = data["balance"]  # 利用可能残高
+        reserved = data["reserved_balance"]  # ロック中残高
+
+        return balance, reserved
+
+    def get_asset_info(self, asset):
+        url = self.endpoint
+        # 日本円を指定した場合
+        if asset in self.parameter_dict.fiat_list:
+            url += "fiat_accounts"
+        # 暗号資産を指定した場合
+        elif asset in self.parameter_dict.name2id:
+            url += "crypto_accounts"
+        else:
+            raise Exception("通貨名が不正です。")
+
+        # ヘッダ情報作成
+        url, header = self.make_header(path=url)
+        # データ送信
+        res = requests.get(url=url, headers=header)
+        parsed = json.loads(res.text)
+        asset = asset.upper()
+
+        data = None
+        # 引数で与えた通貨の情報を取得
+        for p in parsed:
+            if p["currency"] == asset:
                 data = p
                 break
 

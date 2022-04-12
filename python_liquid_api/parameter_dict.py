@@ -21,3 +21,7 @@ class ParameterDict:
         "buy",
         "sell",
     ]
+
+    fiat_list = [
+        "jpy",
+    ]
