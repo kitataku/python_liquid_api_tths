@@ -42,6 +42,7 @@ ohlc = pub.get_candlestick(currency_name, date, candle_type)
   - 15min: 15分足を取得します
   - 30min: 30分足を取得します
   - 1hour: 1時間足を取得します
+- **is_index_datetime**: indexにdatetimeを設定する
 
 #### 返り値
 - **output_df**: pandas.DataFrame型のOHLCVが格納されたデータです。列は次の通りです。
