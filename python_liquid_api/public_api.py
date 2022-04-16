@@ -3,6 +3,7 @@ import requests
 import json
 import datetime
 import pandas as pd
+import warnings
 
 
 class LiquidPublic:
@@ -10,7 +11,7 @@ class LiquidPublic:
         self.end_point = "https://api.liquid.com/products/"
         self.parameter_dict = ParameterDict()
 
-    def get_candlestick(self, currency_name, date, candle_type):
+    def get_candlestick(self, currency_name, date, candle_type, is_index_datetime=False):
         """
         ローソク足を取得
         :param currency_name: 通貨名
@@ -21,6 +22,7 @@ class LiquidPublic:
         - 15min
         - 30min
         - 1hour
+        :param is_index_datetime: indexにdatetimeを設定
         :return: ローソク足DataFrame
         - datetime: yyyy-mm-dd hh:mm:ss
         - open
@@ -61,8 +63,18 @@ class LiquidPublic:
         output_df = output_df.loc[(output_df["datetime"] >= target_date) & (output_df["datetime"] < target_date_next)]
         output_df = output_df.reset_index(drop=True)
 
+        if is_index_datetime:
+            # indexにdatetimeを設定
+            output_df.index = output_df["datetime"]
+            # datetime列を削除
+            output_df = output_df.drop("datetime", axis=1)
+        else:
+            warning_str = "indexが連番になっています。将来indexはdatetimeに変更されます。\n"
+            warning_str += "indexをdatetimeにする場合は引数にis_index_datetime=Trueを設定してください。"
+            warnings.warn(warning_str, category=FutureWarning)
+
         if len(output_df) == 0:
-            raise ValueError("指定日付が取得範囲外です。")
+            warnings.warn("指定日付が取得範囲外です。")
 
         return output_df
 
