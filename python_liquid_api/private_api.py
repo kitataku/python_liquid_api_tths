@@ -19,7 +19,7 @@ class LiquidPrivate:
         self.endpoint = "https://api.liquid.com/"
         self.parameter_dict = ParameterDict()
 
-    def make_header(self, path, query=""):
+    def _make_header(self, path, query=""):
         timestamp = datetime.now().timestamp()
         path += query
 
@@ -37,7 +37,7 @@ class LiquidPrivate:
 
         return path, header
 
-    def check_and_trans_params(self, currency_name, side, amount, price):
+    def _check_and_trans_params(self, currency_name, side, amount, price):
         currency_id = None
 
         if currency_name is not None:
@@ -70,7 +70,7 @@ class LiquidPrivate:
         :return:
         """
         url = self.endpoint + "orders/"
-        currency_id, amount, price = self.check_and_trans_params(
+        currency_id, amount, price = self._check_and_trans_params(
             currency_name=currency_name,
             side=side,
             amount=amount,
@@ -78,7 +78,7 @@ class LiquidPrivate:
         )
 
         # ヘッダ情報作成
-        url, header = self.make_header(path=url)
+        url, header = self._make_header(path=url)
 
         # 注文データ
         send_data = {
@@ -124,7 +124,7 @@ class LiquidPrivate:
             query = "?limit=" + str(limit_num)
 
         # ヘッダ情報作成
-        url, header = self.make_header(path=url, query=query)
+        url, header = self._make_header(path=url, query=query)
         # データ送信
         res = requests.get(url=url, headers=header)
 
@@ -161,7 +161,7 @@ class LiquidPrivate:
     def cancel_order(self, order_id):
         url = self.endpoint + "orders/" + order_id + "/cancel"
         # ヘッダ情報作成
-        header = self.make_header(path=url)
+        header = self._make_header(path=url)
         # データ送信
         res = requests.put(url=url, headers=header)
 
@@ -180,7 +180,7 @@ class LiquidPrivate:
         warnings.warn("廃止予定のメソッドです。get_asset_info(asset='jpy')を使用してください。", category=FutureWarning)
         url = self.endpoint + "fiat_accounts"
         # ヘッダ情報作成
-        url, header = self.make_header(path=url)
+        url, header = self._make_header(path=url)
         # データ送信
         res = requests.get(url=url, headers=header)
         parsed = json.loads(res.text)[0]
@@ -193,7 +193,7 @@ class LiquidPrivate:
         warnings.warn("廃止予定のメソッドです。get_asset_info(asset)を使用してください。", category=FutureWarning)
         url = self.endpoint + "crypto_accounts"
         # ヘッダ情報作成
-        url, header = self.make_header(path=url)
+        url, header = self._make_header(path=url)
         # データ送信
         res = requests.get(url=url, headers=header)
         parsed = json.loads(res.text)
@@ -223,7 +223,7 @@ class LiquidPrivate:
             raise Exception("通貨名が不正です。")
 
         # ヘッダ情報作成
-        url, header = self.make_header(path=url)
+        url, header = self._make_header(path=url)
         # データ送信
         res = requests.get(url=url, headers=header)
         parsed = json.loads(res.text)
