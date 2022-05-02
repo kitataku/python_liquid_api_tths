@@ -1,4 +1,7 @@
 class ParameterDict:
+    def __init__(self):
+        pass
+
     name2id = {
         "btc": "5",
         "eth": "29",
