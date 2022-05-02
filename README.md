@@ -51,19 +51,11 @@ ohlc = pub.get_candlestick(currency_name, date, candle_type)
   - bat: ベーシックアテンショントークン
 - **date**: 取得対象の日付を指定します。フォーマットはyyyymmddの文字列です。
 - **candle_type**: 取得するローソク足のタイプを指定します。指定できる値は次の文字列です。
-<<<<<<< HEAD
   - 1min: 1分足を取得
   - 5min: 5分足を取得
   - 15min: 15分足を取得
   - 30min: 30分足を取得
   - 1hour: 1時間足を取得
-=======
-  - 1min: 1分足を取得します
-  - 5min: 5分足を取得します
-  - 15min: 15分足を取得します
-  - 30min: 30分足を取得します
-  - 1hour: 1時間足を取得します
->>>>>>> 4d0105c5dee2f046159fcfb8d49cf2dd73af5684
 - **is_index_datetime**: indexにdatetimeを設定する
 
 #### 返り値
