@@ -6,11 +6,24 @@ PyPI
 https://pypi.org/project/python-liquid-api-tths/
 
 ## インストール
+インストールにはコンソールで次のコマンドを実行します。
 ```shell
 pip install python-liquid-api-tths
 ```
 
-## Public API
+## 目次
+1. [Public API](#public)  
+   1-1. [ローソク足(OHLCV)を取得](#get_candlestick)  
+   1-2. [板情報の取得](#get_order_book)  
+2. [Private API](#private)  
+   2-1. [注文](#order)  
+   2-2. [注文のキャンセル](#order_cancel)  
+   2-3. [資産残高の取得](#get_asset)  
+   2-4. [日本円残高の取得（廃止予定メソッド）](#get_fiat)  
+   2-5. [暗号資産残高の取得（廃止予定メソッド）](#get_crypto)  
+
+## 1. <a id="public">Public API</a>
+
 Public APIを使うにはLiquidPublicをインスタンス化します。引数は必要ありません。
 
 ```python
@@ -18,8 +31,9 @@ from python_liquid_api.public_api import LiquidPublic
 pub = LiquidPublic()
 ```
 
-### get_candlestick
-このメソッドを使用することでOHLCVデータを取得することができます。
+### 1-1. <a id="get_candlestick">ローソク足(OHLCV)を取得</a>
+ローソク足（OHLCVデータ）を取得するにはget_candlestickを使用します。
+
 ```python
 from python_liquid_api.public_api import LiquidPublic
 pub = LiquidPublic()
@@ -37,11 +51,12 @@ ohlc = pub.get_candlestick(currency_name, date, candle_type)
   - bat: ベーシックアテンショントークン
 - **date**: 取得対象の日付を指定します。フォーマットはyyyymmddの文字列です。
 - **candle_type**: 取得するローソク足のタイプを指定します。指定できる値は次の文字列です。
-  - 1min: 1分足を取得します
-  - 5min: 5分足を取得します
-  - 15min: 15分足を取得します
-  - 30min: 30分足を取得します
-  - 1hour: 1時間足を取得します
+  - 1min: 1分足を取得
+  - 5min: 5分足を取得
+  - 15min: 15分足を取得
+  - 30min: 30分足を取得
+  - 1hour: 1時間足を取得
+- **is_index_datetime**: indexにdatetimeを設定する
 
 #### 返り値
 - **output_df**: pandas.DataFrame型のOHLCVが格納されたデータです。列は次の通りです。
@@ -56,8 +71,9 @@ ohlc = pub.get_candlestick(currency_name, date, candle_type)
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 - **ローソク足のタイプが不正です。**: 引数のcandle_typeに指定できる値以外を指定した場合に発生します。
 
-### get_order_book
-このメソッドを使用することでいた情報を取得することができます。
+### 1-2. <a id="get_order_book">板情報の取得</a>
+板情報を取得するにはget_order_bookを使用します。
+
 ```python
 from python_liquid_api.public_api import LiquidPublic
 pub = LiquidPublic()
@@ -75,14 +91,14 @@ ohlc = pub.get_order_book(currency_name)
   - bat: ベーシックアテンショントークン
 
 #### 返り値
-- **bid_df**: pandas.DataFrame型の売値データです。
-- **ask_df**: pandas.DataFrame型の買値データです。
-- **datetime_data**: datetime型の板情報取得日時です。
+- **bid_df**: pandas.DataFrame型の売値データ
+- **ask_df**: pandas.DataFrame型の買値データ
+- **datetime_data**: datetime型の板情報取得日時
 
 #### 例外
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 
-## Private API
+## 2. <a id="private">Private API</a>
 Private APIを使うにはLiquidPrivateをインスタンス化します。
 
 ```python
@@ -91,11 +107,12 @@ pri = LiquidPrivate(token_id, secret_key)
 ```
 
 #### 引数
-- **token_id**: トークンIDです。
-- **secret_key**: APIトークン秘密鍵です。
+- **token_id**: トークンID
+- **secret_key**: APIトークン秘密鍵
 
-### create_order
-このメソッドを使うことで現物取引の取引注文を出すことができます。
+### 2-1. <a id="order">注文</a>
+現物取引の注文を出すにはcreate_orderを使用します。
+
 ```python
 from python_liquid_api.private_api import LiquidPrivate
 pri = LiquidPrivate(token_id, secret_key)
@@ -114,8 +131,8 @@ order_info = pri.create_order(currency_name, side, amount, price=0.0, order_type
 - **side**: 売買の指定をします。指定できる値は次の通りです。
   - sell: 売り注文
   - buy: 買い注文
-- **amount**: 注文量を指定します。
-- **price**: 注文単価を指定します。
+- **amount**: 注文量
+- **price**: 注文単価
 - **order_type**: 注文方法を指定します。指定できる値は次の通りです。
   - limit: 指値注文
   - market: 成行注文
@@ -135,8 +152,9 @@ order_info = pri.create_order(currency_name, side, amount, price=0.0, order_type
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 - **注文にはbuyもしくはsellを指定してください。**: 引数のsideに指定できる値以外を指定した場合に発生します。
 
-### cancel_order
-このメソッドをを使うことで注文をキャンセルすることができます。
+### 2-2. <a id="order_cancel">注文のキャンセル</a>
+注文をキャンセルするにはcancel_orderを使用します。
+
 ```python
 from python_liquid_api.private_api import LiquidPrivate
 pri = LiquidPrivate(token_id, secret_key)
@@ -144,30 +162,20 @@ pri.cancel_order(order_id)
 ```
 
 #### 引数
-- order_id: キャンセル対象の取引IDを指定します。
+- order_id: キャンセル対象の取引ID
 
-### get_asset_info
-このメソッドを使うことで資産の残高を取得することができます。
+
+### 2-3. <a id="get_asset">資産残高の取得</a>
+資産残高の取得をするにはget_asset_infoを使用します。
+
 ```python
 from python_liquid_api.private_api import LiquidPrivate
 pri = LiquidPrivate(token_id, secret_key)
-pri.get_fiat_info()
-```
-#### 例外
-- **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
-
-### get_fiat_info
-**! 廃止予定のメソッド**
-get_asset_infoを使ってください。
-
-このメソッドを使うことで日本円の残高を取得することができます。
-```python
-from python_liquid_api.private_api import LiquidPrivate
-pri = LiquidPrivate(token_id, secret_key)
-pri.get_fiat_info(asset)
+pri.get_asset_info(asset)
 ```
 #### 引数
-- **currency_name**: 取得対象の通貨名を指定します。指定できる値は次の通りです。
+- **asset**:  取得対象資産
+  - jpy: 日本円
   - btc: ビットコイン
   - eth: イーサリアム
   - xrp: リップル
@@ -175,21 +183,35 @@ pri.get_fiat_info(asset)
   - qash: キャッシュ
   - ltc: ライトコイン
   - bat: ベーシックアテンショントークン
-  - jpy: 日本円
 
+#### 例外
+- **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
+
+
+### 2-4. <a id="get_fiat">日本円残高の取得</a>
+**! 廃止予定のメソッド get_asset_infoを使ってください。**
+
+日本円残高を取得するにはget_fiat_infoを使用します。
+
+```python
+from python_liquid_api.private_api import LiquidPrivate
+pri = LiquidPrivate(token_id, secret_key)
+pri.get_fiat_info()
+```
 #### 返り値
 - **balance**: 利用可能残高
 - **reserved**: ロック中残高
 
 #### 返り値
-- **balance**: 利用可能残高です。
-- **reserved**: ロック中残高です。
+- **balance**: 利用可能残高
+- **reserved**: ロック中残高
 
-### get_crypto_info
-**! 廃止予定のメソッド**
-get_asset_infoを使ってください。
 
-このメソッドを使うことで暗号資産の残高を取得することができます。
+
+### 2-5. <a id="get_crypto">暗号資産残高の取得</a>
+**! 廃止予定のメソッド get_asset_infoを使ってください。**
+暗号資産残高を取得するにはget_crypto_infoを使用します。
+
 ```python
 from python_liquid_api.private_api import LiquidPrivate
 pri = LiquidPrivate(token_id, secret_key)
@@ -197,7 +219,7 @@ pri.get_crypto_info(currency="btc")
 ```
 
 #### 引数
-- **currency_name**: 取得対象の通貨名を指定します。指定できる値は次の通りです。
+- **currency_name**: 取得対象の通貨名
   - btc: ビットコイン
   - eth: イーサリアム
   - xrp: リップル
@@ -207,5 +229,5 @@ pri.get_crypto_info(currency="btc")
   - bat: ベーシックアテンショントークン
 
 #### 返り値
-- **balance**: 利用可能残高です。
-- **reserved**: ロック中残高です。
+- **balance**: 利用可能残高
+- **reserved**: ロック中残高
