@@ -140,7 +140,8 @@ class LiquidPublic:
         target_timestamp = datetime.datetime(year, month, day, hour).timestamp()
         end_timestamp = target_timestamp + 60*60  # 開始時点のtimestampの1時間(3600秒)後
 
-        out_df = pd.DataFrame()  # 出力用DataFrame
+        # 出力用DataFrame
+        out_df = pd.DataFrame(columns=["id", "quantity", "price", "taker_side", "created_at", "timestamp"])
 
         # 比較対象のtimestampが開始時点のtimestampの1時間(3600秒)後までLOOP
         while target_timestamp < end_timestamp:
@@ -153,8 +154,8 @@ class LiquidPublic:
             req_result = requests.get(url).text
             parsed_data = json.loads(req_result)
 
-            # 約定データが取得できなかったもしくは対象timestampのデータのみ取得した場合
-            if len(parsed_data) <= 1:
+            # 約定データが取得できなかった場合
+            if len(parsed_data) == 0:
                 if len(out_df) == 0:
                     # 出力用DataFrameがまだ作成されていない場合は処理を終了
                     return pd.DataFrame()
@@ -164,6 +165,17 @@ class LiquidPublic:
 
             # DataFrameを作成
             df = pd.DataFrame(parsed_data)
+            merge_df = pd.merge(out_df, df, on="timestamp")
+
+            # 約定データがすべて取得済の場合
+            if len(merge_df) == len(df):
+                if len(out_df) == 0:
+                    # 出力用DataFrameがまだ作成されていない場合は処理を終了
+                    return pd.DataFrame()
+                else:
+                    # 出力用DataFrameが作成されている場合は加工処理へ
+                    break
+
             target_timestamp = df.tail(1)["timestamp"].values[0]  # 最後のレコードのtimestampを次の取得地点とする
             target_timestamp = float(target_timestamp)  # whileで比較するためにfloatに変換
 

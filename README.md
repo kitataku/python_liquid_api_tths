@@ -15,6 +15,7 @@ pip install python-liquid-api-tths
 1. [Public API](#public)  
    1-1. [ローソク足(OHLCV)を取得](#get_candlestick)  
    1-2. [板情報の取得](#get_order_book)  
+   1-3. [約定データの取得](#get_execution)
 2. [Private API](#private)  
    2-1. [注文](#order)  
    2-2. [注文のキャンセル](#order_cancel)  
@@ -98,6 +99,35 @@ ohlc = pub.get_order_book(currency_name)
 #### 例外
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 
+### 1-3. <a id="get_execution">約定情報の取得</a>
+約定情報を取得するにはget_executionsを使用します。
+
+```python
+from python_liquid_api.public_api import LiquidPublic
+pub = LiquidPublic()
+execution_df = pub.get_executions(currency_name, date, hour)
+```
+
+#### 引数
+- **currency_name**: 取得対象の通貨名。指定できる値は次の通りです。
+  - btc: ビットコイン
+  - eth: イーサリアム
+  - xrp: リップル
+  - bch: ビットコインキャッシュ
+  - qash: キャッシュ
+  - ltc: ライトコイン
+  - bat: ベーシックアテンショントークン
+- **date**: 取得対象の日付。フォーマットはyyyymmddの文字列
+- **hour**: 取得対象の時間。フォーマットはhhの文字列
+
+#### 返り値
+- **out_df**: pandas.DataFrame型の約定データ
+  - quantity: 取引量
+  - price: 取引価格
+  - taker_size: taker側のside(buy/sell)
+  - timestamp: 取引された時刻
+
+
 ## 2. <a id="private">Private API</a>
 Private APIを使うにはLiquidPrivateをインスタンス化します。
 
@@ -120,7 +150,7 @@ order_info = pri.create_order(currency_name, side, amount, price=0.0, order_type
 ```
 
 #### 引数
-- **currency_name**: 取得対象の通貨名を指定します。指定できる値は次の通りです。
+- **currency_name**: 取得対象の通貨名。指定できる値は次の通りです。
   - btc: ビットコイン
   - eth: イーサリアム
   - xrp: リップル
@@ -128,12 +158,12 @@ order_info = pri.create_order(currency_name, side, amount, price=0.0, order_type
   - qash: キャッシュ
   - ltc: ライトコイン
   - bat: ベーシックアテンショントークン
-- **side**: 売買の指定をします。指定できる値は次の通りです。
+- **side**: 売買の指定。指定できる値は次の通りです。
   - sell: 売り注文
   - buy: 買い注文
 - **amount**: 注文量
 - **price**: 注文単価
-- **order_type**: 注文方法を指定します。指定できる値は次の通りです。
+- **order_type**: 注文方法。指定できる値は次の通りです。
   - limit: 指値注文
   - market: 成行注文
 
