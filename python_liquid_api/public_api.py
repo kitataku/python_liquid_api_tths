@@ -8,7 +8,7 @@ import warnings
 
 class LiquidPublic:
     def __init__(self):
-        self.end_point = "https://api.liquid.com/products/"
+        self.end_point = "https://api.liquid.com/"
         self.parameter_dict = ParameterDict()
 
     def get_candlestick(self, currency_name, date, candle_type, is_index_datetime=False):
@@ -32,6 +32,7 @@ class LiquidPublic:
         - volume
         """
         url = self.end_point
+        url += "products/"
 
         # 通貨名の不正チェック
         if currency_name in self.parameter_dict.name2id:
@@ -85,6 +86,8 @@ class LiquidPublic:
         :return: 売値DataFrame, 買値DataFrame, datetime
         """
         url = self.end_point
+        url += "products/"
+
         # 通貨名の不正チェック
         if currency_name in self.parameter_dict.name2id:
             url += self.parameter_dict.name2id[currency_name]
@@ -105,3 +108,72 @@ class LiquidPublic:
         # 板情報取得日時
         datetime_data = datetime.datetime.fromtimestamp(float(parsed_data["timestamp"]))
         return bid_df, ask_df, datetime_data
+
+    def get_executions(self, currency_name, date, hour):
+        """
+        約定履歴を取得
+        :param currency_name: 通貨名
+        :param date: 日付(yyyymmdd)
+        :param hour: 時間(hh)
+        """
+        def timestamp2datetime(timestamp):
+            return datetime.datetime.fromtimestamp(float(timestamp))
+
+        url_tmp = self.end_point
+        url_tmp += "executions"
+
+        query_tmp = None
+        # 通貨名の不正チェック
+        if currency_name in self.parameter_dict.name2id:
+            query_tmp = "?product_id="
+            query_tmp += self.parameter_dict.name2id[currency_name]
+            query_tmp += "&limit=1000"
+        else:
+            raise ValueError("通貨名が不正です。")
+
+        # 日付をUNIX時間に変換
+        year = int(date[:4])
+        month = int(date[4:6])
+        day = int(date[6:8])
+        hour = int(hour)
+
+        target_timestamp = datetime.datetime(year, month, day, hour).timestamp()
+        end_timestamp = target_timestamp + 60*60  # 開始時点のtimestampの1時間(3600秒)後
+
+        out_df = pd.DataFrame()  # 出力用DataFrame
+
+        # 比較対象のtimestampが開始時点のtimestampの1時間(3600秒)後までLOOP
+        while target_timestamp < end_timestamp:
+            query = query_tmp + "&timestamp=" + str(target_timestamp)
+
+            # URLにクエリを追加
+            url = url_tmp + query
+
+            # 送信
+            req_result = requests.get(url).text
+            parsed_data = json.loads(req_result)
+
+            # 約定データが取得できなかったもしくは対象timestampのデータのみ取得した場合
+            if len(parsed_data) <= 1:
+                if len(out_df) == 0:
+                    # 出力用DataFrameがまだ作成されていない場合は処理を終了
+                    return pd.DataFrame()
+                else:
+                    # 出力用DataFrameが作成されている場合は加工処理へ
+                    break
+
+            # DataFrameを作成
+            df = pd.DataFrame(parsed_data)
+            target_timestamp = df.tail(1)["timestamp"].values[0]  # 最後のレコードのtimestampを次の取得地点とする
+            target_timestamp = float(target_timestamp)  # whileで比較するためにfloatに変換
+
+            out_df = pd.concat([out_df, df], axis=0)
+
+        # 出力用に加工
+        out_df = out_df.loc[out_df["timestamp"] < str(end_timestamp)]  # 終了timestampより前のレコードのみ取得
+        out_df["timestamp"] = out_df["timestamp"].apply(timestamp2datetime)  # UNIX時間を変換
+        out_df = out_df.drop_duplicates(subset="id")  # idで重複削除
+        out_df = out_df.reset_index(drop=True)  # indexを削除
+        out_df = out_df.drop(["created_at", "id"], axis=1)  # 不要な列を削除
+
+        return out_df
