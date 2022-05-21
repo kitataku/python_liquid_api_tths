@@ -16,6 +16,7 @@ INSTALL_REQUIRES = [
     "PyJWT>=2.1.0",
     "pandas>=1.3.4",
     "numpy>=1.20.3",
+    "requests>=2.27.1",
 ]
 
 PACKAGES = [
