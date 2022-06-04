@@ -162,7 +162,7 @@ class LiquidPrivate:
     def cancel_order(self, order_id):
         url = self.endpoint + "orders/" + order_id + "/cancel"
         # ヘッダ情報作成
-        header = self.__make_header(path=url)
+        path, header = self.__make_header(path=url)
         # データ送信
         res = requests.put(url=url, headers=header)
 
