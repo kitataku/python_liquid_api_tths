@@ -67,6 +67,7 @@ class LiquidPrivate:
         :param order_type: 注文タイプ
         - limit: 指値注文
         - market: 成行注文
+        - stop: 逆指値
         :return:
         """
         url = self.endpoint + "orders/"
