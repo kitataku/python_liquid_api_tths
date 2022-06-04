@@ -2,4 +2,4 @@ from .public_api import *
 from .private_api import *
 from .parameter_dict import *
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
