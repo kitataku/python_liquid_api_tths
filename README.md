@@ -1,4 +1,5 @@
 # python_liquid_api_tths
+[![Downloads](https://static.pepy.tech/personalized-badge/python-liquid-api-tths?period=total&units=international_system&left_color=black&right_color=red&left_text=Downloads)](https://pepy.tech/project/python-liquid-api-tths)
 ## API概要
 このライブラリはLiquid APIのPrivate APIとPublic APIをPythonで扱うものです。
 
@@ -166,6 +167,7 @@ order_info = pri.create_order(currency_name, side, amount, price=0.0, order_type
 - **order_type**: 注文方法。指定できる値は次の通りです。
   - limit: 指値注文
   - market: 成行注文
+  - stop: 逆指値注文
 
 #### 返り値
 - **output**: 辞書型の注文情報です。
