@@ -14,9 +14,12 @@ pip install python-liquid-api-tths
 
 ## 目次
 1. [Public API](#public)  
-   1-1. [ローソク足(OHLCV)を取得](#get_candlestick)  
-   1-2. [板情報の取得](#get_order_book)  
-   1-3. [約定データの取得](#get_execution)
+   1-1. [ローソク足(OHLCV)の生データを取得](#get_candlestick_raw)  
+   1-2. [ローソク足(OHLCV)を取得](#get_candlestick)  
+   1-3. [板情報の生データを取得](#get_order_book_raw)  
+   1-4. [板情報の取得](#get_order_book)  
+   1-5. [約定データの生データを取得](#get_execution_raw)  
+   1-6. [約定データの取得](#get_execution)
 2. [Private API](#private)  
    2-1. [注文](#order)  
    2-2. [注文のキャンセル](#order_cancel)  
@@ -33,7 +36,32 @@ from python_liquid_api.public_api import LiquidPublic
 pub = LiquidPublic()
 ```
 
-### 1-1. <a id="get_candlestick">ローソク足(OHLCV)を取得</a>
+### 1-1. <a id="get_candlestick_raw">ローソク足(OHLCV)の生データを取得</a>
+ローソク足（OHLCVデータ）の生データを取得するにはget_candlestick_rawを使用します。
+```python
+from python_liquid_api.public_api import LiquidPublic
+pub = LiquidPublic()
+ohlc = pub.get_candlestick_raw(currency_name, candle_type)
+```
+
+#### 引数
+- **currency_name**: 取得対象の通貨名を指定します。指定できる値は次の通りです。
+  - btc: ビットコイン
+  - eth: イーサリアム
+  - xrp: リップル
+  - bch: ビットコインキャッシュ
+  - qash: キャッシュ
+  - ltc: ライトコイン
+  - bat: ベーシックアテンショントークン
+- **candle_type**: 取得するローソク足のタイプを指定します。指定できる値は次の文字列です。
+  - 1min: 1分足を取得
+  - 5min: 5分足を取得
+  - 15min: 15分足を取得
+  - 30min: 30分足を取得
+  - 1hour: 1時間足を取得
+
+
+### 1-2. <a id="get_candlestick">ローソク足(OHLCV)を取得</a>
 ローソク足（OHLCVデータ）を取得するにはget_candlestickを使用します。
 
 ```python
@@ -73,13 +101,40 @@ ohlc = pub.get_candlestick(currency_name, date, candle_type)
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 - **ローソク足のタイプが不正です。**: 引数のcandle_typeに指定できる値以外を指定した場合に発生します。
 
-### 1-2. <a id="get_order_book">板情報の取得</a>
+
+### 1-3. <a id="get_order_book_raw">板情報の生データを取得</a>
+板情報を取得するにはget_order_book_rawを使用します。
+
+```python
+from python_liquid_api.public_api import LiquidPublic
+pub = LiquidPublic()
+raw_data = pub.get_order_book_raw(currency_name)
+```
+
+#### 引数
+- **currency_name**: 取得対象の通貨名を指定します。指定できる値は次の通りです。
+  - btc: ビットコイン
+  - eth: イーサリアム
+  - xrp: リップル
+  - bch: ビットコインキャッシュ
+  - qash: キャッシュ
+  - ltc: ライトコイン
+  - bat: ベーシックアテンショントークン
+
+#### 返り値
+- **raw_data**: 板情報
+
+#### 例外
+- **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
+
+
+### 1-4. <a id="get_order_book">板情報を取得</a>
 板情報を取得するにはget_order_bookを使用します。
 
 ```python
 from python_liquid_api.public_api import LiquidPublic
 pub = LiquidPublic()
-ohlc = pub.get_order_book(currency_name)
+bid_df, ask_df, datetime_data = pub.get_order_book(currency_name)
 ```
 
 #### 引数
@@ -100,7 +155,35 @@ ohlc = pub.get_order_book(currency_name)
 #### 例外
 - **通貨名が不正です。**: 引数のcurrency_nameに指定できる通貨名以外を指定した場合に発生します。
 
-### 1-3. <a id="get_execution">約定情報の取得</a>
+
+### 1-5. <a id="get_execution_raw">約定情報の生データを取得</a>
+約定情報を取得するにはget_executions_rawを使用します。
+
+```python
+from python_liquid_api.public_api import LiquidPublic
+pub = LiquidPublic()
+raw_data, url = pub.get_executions_raw(currency_name, timestamp, max_data_num=1000, base_url=None)
+```
+
+#### 引数
+- **currency_name**: 取得対象の通貨名。指定できる値は次の通りです。
+  - btc: ビットコイン
+  - eth: イーサリアム
+  - xrp: リップル
+  - bch: ビットコインキャッシュ
+  - qash: キャッシュ
+  - ltc: ライトコイン
+  - bat: ベーシックアテンショントークン
+- **timestamp**: 取得対象のtimestamp
+- **max_data_num**: 最大取得データ数
+- **base_url**: 約定履歴を取得するURLのからtimestampを指定する部分を除いたURL。指定すると処理をいくつかスキップできます。
+
+#### 返り値
+- **raw_data**: 約定履歴の生データ
+- **url**: 約定履歴を取得するURLのからtimestampを指定する部分を除いたURL
+
+
+### 1-6. <a id="get_execution">約定情報を取得</a>
 約定情報を取得するにはget_executionsを使用します。
 
 ```python

@@ -1,4 +1,4 @@
-from .parameter_dict import ParameterDict
+from .utils import json_parse, url_add_currency, set_url
 import requests
 import json
 import datetime
@@ -6,12 +6,41 @@ import pandas as pd
 import warnings
 
 
-class LiquidPublic:
-    def __init__(self):
-        self.end_point = "https://api.liquid.com/"
-        self.parameter_dict = ParameterDict()
+class LiquidPublic(object):
+    @staticmethod
+    def get_candlestick_raw(currency_name, candle_type):
+        """
+        ローソク足を取得して生データを出力
+        :param currency_name: 通貨名
+        :param candle_type: ローソク足範囲
+        - 1min
+        - 5min
+        - 15min
+        - 30min
+        - 1hour
+        :return: ローソク足Data
+        - datetime: UNIX Timestamp
+        - open
+        - high
+        - low
+        - close
+        - volume
+        """
+        # URLの設定
+        set_url_params = {
+            "access_type": "ohlc",
+            "currency_name": currency_name,
+            "resolution": candle_type
+        }
+        url = set_url(**set_url_params)
 
-    def get_candlestick(self, currency_name, date, candle_type, is_index_datetime=False):
+        # APIからローソク足を取得
+        req_result = requests.get(url)
+        raw_data = json_parse(req_result)["data"]
+
+        return raw_data
+
+    def get_candlestick(self, currency_name, date, candle_type, is_index_datetime=True):
         """
         ローソク足を取得
         :param currency_name: 通貨名
@@ -31,28 +60,10 @@ class LiquidPublic:
         - close
         - volume
         """
-        url = self.end_point
-        url += "products/"
+        # ローソク足の生データを取得
+        parsed_data = self.get_candlestick_raw(currency_name, candle_type)
 
-        # 通貨名の不正チェック
-        if currency_name in self.parameter_dict.name2id:
-            url += self.parameter_dict.name2id[currency_name]
-        else:
-            raise ValueError("通貨名が不正です。")
-        url += "/ohlc"
-
-        # ローソクタイプの不正チェック
-        if candle_type in self.parameter_dict.resolution2id:
-            # URLにresolutionを付与
-            second = self.parameter_dict.resolution2id[candle_type]
-            query = "?resolution=" + second + "&limit=800"
-        else:
-            raise ValueError("ローソク足のタイプが不正です。")
-
-        url += query
-        req_result = requests.get(url).text
-        parsed_data = json.loads(req_result)["data"]
-
+        # DataFrameに変換
         output_df = pd.DataFrame(data=parsed_data, columns=["datetime", "open", "high", "low", "close", "volume"])
         output_df["datetime"] = output_df["datetime"].apply(datetime.datetime.fromtimestamp)
 
@@ -69,15 +80,32 @@ class LiquidPublic:
             output_df.index = output_df["datetime"]
             # datetime列を削除
             output_df = output_df.drop("datetime", axis=1)
-        else:
-            warning_str = "indexが連番になっています。将来indexはdatetimeに変更されます。\n"
-            warning_str += "indexをdatetimeにする場合は引数にis_index_datetime=Trueを設定してください。"
-            warnings.warn(warning_str, category=FutureWarning)
 
         if len(output_df) == 0:
             warnings.warn("指定日付が取得範囲外です。")
 
         return output_df
+
+    @staticmethod
+    def get_order_book_raw(currency_name):
+        """
+        板情報の生データを取得
+        - buy_price_levels: 買値
+        - sell_price_levels: 売値
+        - timestamp: 取得日時
+        """
+        # URLの設定
+        set_url_params = {
+            "access_type": "book",
+            "currency_name": currency_name,
+        }
+        url = set_url(**set_url_params)
+
+        # 板情報の生データを取得
+        req_result = requests.get(url)
+        raw_data = json_parse(req_result)
+
+        return raw_data
 
     def get_order_book(self, currency_name):
         """
@@ -85,29 +113,49 @@ class LiquidPublic:
         :param currency_name: 通貨名
         :return: 売値DataFrame, 買値DataFrame, datetime
         """
-        url = self.end_point
-        url += "products/"
-
-        # 通貨名の不正チェック
-        if currency_name in self.parameter_dict.name2id:
-            url += self.parameter_dict.name2id[currency_name]
-        else:
-            raise ValueError("通貨名が不正です。")
-        url += "/price_levels"
-        query = "?full=0"
-        url += query
-        req_result = requests.get(url).text
-        parsed_data = json.loads(req_result)
+        # 板情報の生データを取得
+        order_book_raw = self.get_order_book_raw(currency_name)
 
         # 売値
-        bid_df = pd.DataFrame(data=parsed_data["sell_price_levels"], columns=["bid_price", "bid_volume"])
+        bid_df = pd.DataFrame(
+            data=order_book_raw["sell_price_levels"],
+            columns=["bid_price", "bid_volume"]
+        )
 
         # 買値
-        ask_df = pd.DataFrame(data=parsed_data["buy_price_levels"], columns=["ask_price", "ask_volume"])
+        ask_df = pd.DataFrame(
+            data=order_book_raw["buy_price_levels"],
+            columns=["ask_price", "ask_volume"]
+        )
 
         # 板情報取得日時
-        datetime_data = datetime.datetime.fromtimestamp(float(parsed_data["timestamp"]))
+        datetime_data = datetime.datetime.fromtimestamp(float(order_book_raw["timestamp"]))
         return bid_df, ask_df, datetime_data
+
+    @staticmethod
+    def get_executions_raw(currency_name, timestamp, max_data_num=1000, base_url=None):
+        """
+        約定履歴を取得
+        :param currency_name: 通貨名
+        :param timestamp: 取得対象timestamp
+        :param max_data_num: 最大取得データ数
+        :param base_url: 約定履歴を取得するURLのからtimestampを指定する部分を除いたURL
+        """
+        if base_url is None:
+            # URLを設定
+            set_url_params = {
+                "access_type": "executions",
+                "currency_name": currency_name,
+                "max_data_num": max_data_num,
+            }
+            url_tmp = set_url(**set_url_params)
+        else:
+            url_tmp = base_url
+
+        url = url_tmp + "&timestamp=" + str(timestamp)
+        req_result = requests.get(url)
+        raw_data = json_parse(req_result)
+        return raw_data, url_tmp
 
     def get_executions(self, currency_name, date, hour):
         """
@@ -119,43 +167,21 @@ class LiquidPublic:
         def timestamp2datetime(timestamp):
             return datetime.datetime.fromtimestamp(float(timestamp))
 
-        url_tmp = self.end_point
-        url_tmp += "executions"
-
-        query_tmp = None
-        # 通貨名の不正チェック
-        if currency_name in self.parameter_dict.name2id:
-            query_tmp = "?product_id="
-            query_tmp += self.parameter_dict.name2id[currency_name]
-            query_tmp += "&limit=1000"
-        else:
-            raise ValueError("通貨名が不正です。")
-
-        # 日付をUNIX時間に変換
-        year = int(date[:4])
-        month = int(date[4:6])
-        day = int(date[6:8])
-        hour = int(hour)
-
-        target_timestamp = datetime.datetime(year, month, day, hour).timestamp()
+        # 取得対象のtimestampを取得
+        target_timestamp = datetime.datetime.strptime(date+hour, "%Y%m%d%H").timestamp()
         end_timestamp = target_timestamp + 60*60  # 開始時点のtimestampの1時間(3600秒)後
 
         # 出力用DataFrame
         out_df = pd.DataFrame(columns=["id", "quantity", "price", "taker_side", "created_at", "timestamp"])
 
+        url = None
         # 比較対象のtimestampが開始時点のtimestampの1時間(3600秒)後までLOOP
         while target_timestamp < end_timestamp:
-            query = query_tmp + "&timestamp=" + str(target_timestamp)
-
-            # URLにクエリを追加
-            url = url_tmp + query
-
-            # 送信
-            req_result = requests.get(url).text
-            parsed_data = json.loads(req_result)
+            # 約定生データと基底URLを取得
+            raw_data, url = self.get_executions_raw(currency_name, target_timestamp, base_url=url)
 
             # 約定データが取得できなかった場合
-            if len(parsed_data) == 0:
+            if len(raw_data) == 0:
                 if len(out_df) == 0:
                     # 出力用DataFrameがまだ作成されていない場合は処理を終了
                     return pd.DataFrame()
@@ -164,7 +190,7 @@ class LiquidPublic:
                     break
 
             # DataFrameを作成
-            df = pd.DataFrame(parsed_data)
+            df = pd.DataFrame(raw_data)
             merge_df = pd.merge(out_df, df, on="timestamp")
 
             # 約定データがすべて取得済の場合
